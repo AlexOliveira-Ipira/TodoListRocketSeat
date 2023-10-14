@@ -1,5 +1,6 @@
 package dev.oliveiratec.todolistrocketseat.controller;
 
+import at.favre.lib.crypto.bcrypt.BCrypt;
 import dev.oliveiratec.todolistrocketseat.model.UserModel;
 import dev.oliveiratec.todolistrocketseat.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,11 @@ public class UserController {
         if(user != null){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Usuário já existe");
         }
+        var passwordHashred = BCrypt.withDefaults()
+                .hashToString(12, userModel.getPassword().toCharArray());
+
+        userModel.setPassword(passwordHashred);
+
         var userCreatd = userRepository.save(userModel);
         return ResponseEntity.status(HttpStatus.CREATED).body(userCreatd);
     }
