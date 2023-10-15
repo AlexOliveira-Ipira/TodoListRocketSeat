@@ -1,11 +1,11 @@
 FROM ubuntu:latest As build
 
-RUN apt-get update
+RUN apt-get update && apt-get upgrade -y
 RUN apt-get install openjdk-17-jdk -Y
 
-copy . .
+COPY . .
 
-RUM pat-get install maven -Y
+RUN apt-get install maven -Y
 RUN mvn clean install
 
 FROM openjdk:17-jdk-slim
