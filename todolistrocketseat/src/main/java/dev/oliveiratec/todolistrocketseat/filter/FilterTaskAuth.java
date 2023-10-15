@@ -21,32 +21,38 @@ public class FilterTaskAuth extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
-        // Pegar a autenticação (Usuário e senha)
-        var autorizarion = request.getHeader("Authorization");
+        var serveletPath = request.getServletPath();
 
-        var authEncoded = autorizarion.substring("Basic".length()).trim();
+        if(serveletPath.contains("/tasks")){
+            // Pegar a autenticação (Usuário e senha)
+            var autorizarion = request.getHeader("Authorization");
 
-        byte[] autoDecode =  Base64.getDecoder().decode(authEncoded);
+            var authEncoded = autorizarion.substring("Basic".length()).trim();
 
-        var authString = new String(autoDecode);
+            byte[] autoDecode =  Base64.getDecoder().decode(authEncoded);
 
-        String[] credentials =  authString.split(":");
-        String userName = credentials[0];
-        String userPassword = credentials[1];
+            var authString = new String(autoDecode);
 
-        // Validar Usuário
-        var user  = userRepository.findByUsername(userName);
-        if(user == null){
-            response.sendError(401);
-        }else {
-            // Validar Senha
-            var passwordVerify = BCrypt.verifyer().verify(userPassword.toCharArray() , user.getPassword());
-            if(passwordVerify.verified){
-                filterChain.doFilter(request, response);
-            }else{
+            String[] credentials =  authString.split(":");
+            String userName = credentials[0];
+            String userPassword = credentials[1];
+
+            // Validar Usuário
+            var user  = userRepository.findByUsername(userName);
+            if(user == null){
                 response.sendError(401);
+            }else {
+                // Validar Senha
+                var passwordVerify = BCrypt.verifyer().verify(userPassword.toCharArray() , user.getPassword());
+                if(passwordVerify.verified){
+                    request.setAttribute("idUser", user.getId());
+                    filterChain.doFilter(request, response);
+                }else{
+                    response.sendError(401);
+                }
             }
-            // Segue viagem
+        }else {
+            filterChain.doFilter(request, response);
         }
     }
 }
