@@ -5,10 +5,12 @@ import dev.oliveiratec.todolistrocketseat.model.UserModel;
 import dev.oliveiratec.todolistrocketseat.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController()
 @RequestMapping("/users")
@@ -29,8 +31,13 @@ public class UserController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<String> create(@RequestBody UserModel userModel){
-      return ResponseEntity.ok(userService.createdUser(userModel));
+    public ResponseEntity<?> create(@RequestBody UserModel userModel){
+        try {
+            return userService.createdUser(userModel);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("message", e.getMessage()));
+        }
     }
 
     @PostMapping("/login")

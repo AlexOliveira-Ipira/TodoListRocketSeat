@@ -6,6 +6,7 @@ import dev.oliveiratec.todolistrocketseat.model.UserModel;
 import dev.oliveiratec.todolistrocketseat.repository.UserRepository;
 import dev.oliveiratec.todolistrocketseat.utils.TokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -17,16 +18,15 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
-    public String createdUser(UserModel user){
+    public ResponseEntity<TokenDTO> createdUser(UserModel user){
         String username = user.getUsername();
         if (userRepository.findByUsername(username).isPresent()) {
-            return "Usuário já cadastrado";
+            throw new RuntimeException("Usuário já cadastrado");
         }
         String hashedPassword = BCrypt.withDefaults()
-                .hashToString(12, user.getPassword().toCharArray());
+            .hashToString(12, user.getPassword().toCharArray());
         user.setPassword(hashedPassword);
-        UserModel savedUser = userRepository.save(user);
-        return savedUser.getUsername();
+        return ResponseEntity.ok().body(TokenUtil.encode(userRepository.save(user)));
     }
 
     public TokenDTO userLogin(UserModel user){
