@@ -1,35 +1,40 @@
 package dev.oliveiratec.todolistrocketseat.controller;
 
-import at.favre.lib.crypto.bcrypt.BCrypt;
+import dev.oliveiratec.todolistrocketseat.dto.TokenDTO;
 import dev.oliveiratec.todolistrocketseat.model.UserModel;
-import dev.oliveiratec.todolistrocketseat.repository.UserRepository;
+import dev.oliveiratec.todolistrocketseat.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController()
 @RequestMapping("/users")
 public class UserController {
 
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
+
+    @GetMapping()
+    public ResponseEntity<List<UserModel>> list(HttpServletRequest request){
+        return ResponseEntity.ok().body(userService.allUser());
+    }
+
+
+    @GetMapping("/username/{Name}")
+    public ResponseEntity<UserModel> getByUsername(@PathVariable String Name) {
+        return ResponseEntity.ok().body(userService.getUsername(Name));
+    }
 
     @PostMapping("/create")
-    public ResponseEntity create(@RequestBody  UserModel userModel){
-        var user = userRepository.findByUsername(userModel.getUsername());
-        if(user != null){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Usuário já existe");
-        }
-        var passwordHashred = BCrypt.withDefaults()
-                .hashToString(12, userModel.getPassword().toCharArray());
+    public ResponseEntity<String> create(@RequestBody UserModel userModel){
+      return ResponseEntity.ok(userService.createdUser(userModel));
+    }
 
-        userModel.setPassword(passwordHashred);
-
-        var userCreatd = userRepository.save(userModel);
-        return ResponseEntity.status(HttpStatus.CREATED).body(userCreatd);
+    @PostMapping("/login")
+    public ResponseEntity<TokenDTO> login(@RequestBody UserModel user){
+        return ResponseEntity.ok(userService.userLogin(user));
     }
 }
