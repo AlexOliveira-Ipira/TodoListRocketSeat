@@ -6,6 +6,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Data
@@ -17,9 +18,13 @@ public class TaskModel {
 
     @Column(length = 50)
     private String title;
+    private Boolean completed = false;
+    private LocalDateTime startAt;
+    private LocalDateTime endAt;
+    private Boolean delete = false;
+    private LocalDateTime dateDelete;
 //    private String description;
-//    private LocalDateTime startAt;
-//    private LocalDateTime endAt;
+
 //    private String priority;
 //
 //    private UUID idUser;
