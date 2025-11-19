@@ -30,7 +30,7 @@ public class UserService {
     }
 
     public TokenDTO userLogin(UserModel user){
-        UserModel storedUser = userRepository.findByUsername(user.getUsername()).orElseThrow(() -> new RuntimeException("Usuario não encontrado"));
+        UserModel storedUser = userRepository.findByEmail(user.getEmail()).orElseThrow(() -> new RuntimeException("Usuario não encontrado"));
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         if(!encoder.matches(user.getPassword(), storedUser.getPassword())){
             throw new RuntimeException("Usuário não autorizado!");

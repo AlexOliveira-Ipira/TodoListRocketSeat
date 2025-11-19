@@ -18,7 +18,8 @@ public class WebSecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests( (auth) -> {
                     auth.requestMatchers(new AntPathRequestMatcher("/users/create", "POST")).permitAll();
-                    auth.requestMatchers(new AntPathRequestMatcher("/users/login", "POST")).permitAll()
+                    auth.requestMatchers(new AntPathRequestMatcher("/users/login", "POST")).permitAll();
+                    auth.requestMatchers(new AntPathRequestMatcher("/tasks", "GET")).permitAll()
                             .anyRequest().authenticated();
                 })
                 .addFilterBefore(new AuthFilter(), UsernamePasswordAuthenticationFilter.class);
